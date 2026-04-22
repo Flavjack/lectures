@@ -1,0 +1,114 @@
+---
+title: "Qualitative Analysis"
+author: "Flavio Lozano Isla"
+format:
+  html:
+    toc: true
+    toc-expand: true
+    toc-depth: 4
+    toc-location: left
+    number-sections: true
+    self-contained: true
+    code-fold: true
+    output-file: "ESM_1"
+editor_options: 
+  chunk_output_type: console
+execute: 
+  warning: false
+  message: false
+  echo: true
+---
+
+# Referencias
+
+https://husson.r-universe.dev/FactoMineR
+
+# Setup
+
+```{r}
+source("https://inkaverse.com/setup.r")
+```
+
+# Importar datos
+
+```{r}
+data(wine)
+```
+
+Base datos con 21 filas (el número de vinos) y 31 columnas: la primera columna corresponde a la etiqueta de origen, la segunda columna corresponde al tipo de suelo y las restantes corresponden a descriptores sensoriales.
+
+# Principal Component Analysis (PCA)
+
+```{r}
+pca <- wine %>% 
+  PCA(scale.unit = TRUE, quali.sup = 1:2, graph = F)
+
+var <- plot(pca, choix = "var", cex = 0.5)
+
+ind <- plot(pca, choix = "ind", cex = 0.7
+         , habillage = 2
+         , label = "ind"
+         )
+
+grid_pca <- list(var, ind) %>% 
+  plot_grid(plotlist = ., ncol = 2, labels = "auto")
+
+grid_pca
+```
+
+# Multiple Factor Analysis (MFA)
+
+```{r}
+grn <- c(2,5,3,10,9,2)
+sum(gr)
+grc <- c("orig","olf","vis","olfag","gust","ens")
+
+mfa <- wine %>% 
+  MFA(group = grn
+     , type = c("n",rep("s",5))
+     , name.group = grc
+     , num.group.sup = c(1,6)
+     , graph = F)
+
+plotellipses(mfa)
+
+var <- plot(mfa, choix = "var", cex = 0.5)
+ind <- plot(mfa, choix = "ind"
+            , cex = 0.7
+            , habillage = 2)
+
+grid_mfa <- list(var, ind) %>% 
+  plot_grid(plotlist = ., ncol = 2, labels = "auto")
+
+grid_mfa
+```
+ 
+# Multiple Correspondence Analysis (MCA)
+
+```{r}
+mca <- wine %>% 
+  MCA(quanti.sup = 3:ncol(.), graph = F)
+
+plot(mca)
+var <- plot(mca, choix = "var", cex = 0.5)
+plot(mca, habillage = "quali") 
+ind <- plot(mca,invisible=c("ind")
+     , habillage = "quali")
+
+grid_mca <- list(var, ind) %>% 
+  plot_grid(plotlist = ., ncol = 2, labels = "auto")
+
+grid_mca
+```
+
+# grid plots
+
+```{r}
+grid <- list(grid_pca, grid_mfa, grid_mca) %>% 
+  plot_grid(plotlist = ., nrow = 3)
+
+grid %>% 
+  ggsave(plot = ., "factomethods.jpg"
+         , units = "cm", height = 30, width = 30)
+```
+

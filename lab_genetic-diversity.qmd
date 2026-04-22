@@ -1,0 +1,267 @@
+---
+title: "Next-generation data filtering in the genomics era"
+subtitle: "Introduction to Basic SNP Analysis with snpR" 
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    self-contained: true
+editor_options: 
+  chunk_output_type: console
+execute: 
+  warning: false
+  echo: true
+---
+
+# Project Setup
+
+```{r}
+#| label:  setup
+
+source("https://inkaverse.com/docs.r")
+
+cran <- c("devtools")
+git <- c("hemstrow/snpR") 
+
+suppressPackageStartupMessages({
+  for (pkg in cran) { 
+    if( !require(pkg, character.only = TRUE) ) {
+      install.packages(pkg)
+      library(pkg, character.only = TRUE)
+    } 
+  }
+  
+  for (pkg in git) {
+    if( !require(sub(".*/", "", pkg), character.only = TRUE) ) {
+      devtools::install_github(pkg, upgrade = TRUE)
+      library(sub(".*/", "", pkg), character.only = TRUE)
+    }
+  }
+}); remove(cran, git, pkg)
+
+cat("Project: ", getwd(), "\n")
+session_info()
+```
+
+# References
+
+- https://www.nature.com/articles/s41576-024-00738-6
+- https://github.com/ChristieLab/filtering_simulation_paper
+- https://github.com/hemstrow/snpR
+
+# snpR Introduction
+
+snpR is a SNP genomic analysis package that is designed to do a range of basic genomic analyses, such as calculate observed and expected heterozygosity, linkage disequilibrium, pairwise-Fst, and so on. This package also has dimensionality reduction tools (eg. PCA), data formatting conversions for other packages and programs, population structure, genetic prediction, private allele detection and more.
+
+# Quick-start Guide
+
+We will walk through a basic analysis of the example three-spined stickleback data. We will filter SNP data, make a PCA exploratory plot, calculate minor allele frequencies, $\pi$, observed heterozygosity, see if SNPs are in HWE, check for private alleles, calculate pairwise FST, gaussian smooth and plot these parameters.
+
+# Import data
+
+Genotypes are noted with two characters, such as "GG" or "GA" for a G/G homozygote and a G/A heterozygote, respectively. The missing data format can be user-defined, but is "NN" by default.
+
+```{r}
+snpfile <- system.file("extdata", "stick_NN_input.txt", package = "snpR")
+snp <- read.table(snpfile, header = TRUE)
+# stickSNPs
+```
+
+## Meta data
+
+```{r}
+# the first three characters of the column names are the population, so let's grab that.
+# since the first three columns contain snp.metadata, we need to remove those before import!
+sample_meta <- data.frame(pop = substr(colnames(snp[-c(1:2)]), 1, 3)
+                          , stringsAsFactors = F)
+
+# grab our sample metadata
+snp_meta <- snp[,1:2]
+
+# grab the genetic data
+gen_data <- snp[,3:ncol(snp)]
+
+# import, remember to remove metadata from the genotypes!
+snpdat <- import.snpR.data(genotypes = gen_data
+                           , snp.meta = snp_meta
+                           , sample.meta = sample_meta)
+```
+
+## snpRdata objects and facets
+
+```{r}
+snpdat
+
+# get the number of samples
+nsamps(snpdat)
+ncol(snpdat)
+
+# get the number of SNPs
+nsnps(snpdat)
+nrow(snpdat)
+
+# dim also works
+dim(snpdat)
+
+# view sample metadata
+head(sample.meta(snpdat))
+
+# write to sample metadata; note that writing to any part of the metadata or genotypes will cause any calculations
+# to be discarded, since the new columns can cause some unexpected results.
+sample.meta(snpdat)$fam <- sample(LETTERS[1:4], nsamps(snpdat), T)
+
+# view metadata
+head(snp.meta(snpdat))
+head(sample.meta(snpdat))
+
+snpdat
+```
+
+## statistics
+
+```{r}
+snpdat <- calc_ho(snpdat) # observed heterozygosity
+ho <- get.snpR.stats(snpdat, stats = "ho")
+ho$single %>% kable()
+ho$weighted.means %>% kable()
+```
+
+### Facets
+
+Facets are a fundamental feature of `snpR`. Often, SNP data must be separated by population/chromosome/family/year etc. before statistics are calculated. Additionally, many statistics, like Fst, need to be calculated *pairwise* by comparing each population to every other population. Facets allow you to easily do this without the need for direct data manipulation. 
+
+```{r}
+snpdat <- calc_ho(snpdat, facets = "pop") # running the calculation
+get.snpR.stats(snpdat, facets = "pop", stats = "ho")$weighted.means # retrieving the results
+```
+
+```{r}
+snpdat <- calc_he(snpdat, facets = "pop") # running the calculation
+get.snpR.stats(snpdat, facets = "pop", stats = "he")$weighted.means # retrieving the results
+```
+
+```{r}
+get.snpR.stats(snpdat, facets = "pop", stats = c("he", "ho"))$weighted.means
+```
+
+### Complex Facets
+
+```{r}
+snpdat <- calc_ho(snpdat, "pop.fam") # running the calculation
+get.snpR.stats(snpdat, "pop.fam", stats = "ho")$weighted.means # retrieving the results
+```
+
+## SNP filtering
+
+The `filter_snps()` function can be used to filter poorly sequenced individuals and loci, remove SNPs with a low minor allele frequency either overall or by facet (often population), remove highly heterozygous SNPs (which are likely sourced from duplicated genomic regions), and remove non-biallelic SNPs.
+
+We will filter out all loci with a minor allele frequency below 0.05 in all populations, loci with a heterozygote frequency above 0.55, that are not bi-allelic, that are non-polymorphic, or that are sequenced in less than half of the individuals. We will also remove all individuals that are genotyped at less than half of the remaining loci, then quickly re-check that all loci are still polymorphic.
+
+```{r}
+# maf = what is the minimum minor allele frequency to keep?
+# hf_hets = what is the maximum heterozygote frequency to keep?
+# min_ind = remove all loci sequenced at less than half of the individuals.
+# min_loci = remove all individuals sequenced at less than half of the loci
+# re_run = recheck that all loci are polymorphic after removing individuals. 
+# maf_facets = we want to keep any SNPs that pass the maf filter in ANY population!
+# non_poly = we want to remove non-polymorphic loci
+# bi_al = we want to remove non bi-allelic loci"
+
+snpdat <- filter_snps(x = snpdat
+                      , maf = 0.05
+                      , hf_hets = 0.55
+                      , min_ind =  0.5
+                      , min_loci = 0.5
+                      , re_run = "partial"
+                      , maf_facets = "pop"
+                      , non_poly = TRUE
+                      , bi_al = TRUE 
+                      ) 
+```
+
+## PCA plots
+
+A common first analytical step for new data is to run a PCA to look for any evidence of population structure/sequencing errors. 
+
+```{r}
+pca <- plot_clusters(snpdat, facets = c("pop"))
+pca
+```
+
+```{r}
+pca <- plot_clusters(snpdat, facets = c("pop.fam"))
+pca
+```
+
+## Calculate minor allele frequencies, $\pi$, Ho, check for private alleles and HWE.
+
+Minor allele frequencies, $\pi$, Ho, and HWE divergence, and other basic diversity statistics are easy to calculate with snpR.
+
+```{r}
+snpdat <- calc_maf(snpdat, "pop")
+snpdat <- calc_pi(snpdat, "pop")
+snpdat <- calc_ho(snpdat, "pop")
+snpdat <- calc_he(snpdat, "pop")
+snpdat <- calc_hwe(snpdat, "pop")
+
+stats <- get.snpR.stats(snpdat, "pop"
+                        , stats = c("maf", "pi", "ho", "he", "hwe"))
+
+stats
+```
+
+## Pairwise Fst calculation
+
+snpR can calculate pairwise Fst using a few approaches. Here, we'll use Wier and Cockerham (1984)'s method to calculate pairwise Fst between each pair of populations for each SNP. 
+
+```{r}
+snpdat <- calc_pairwise_fst(snpdat, "pop", method = "WC")
+```
+
+To recover the data, we again use get.snpR.stats. We get a new kind of output here: fst.matrix, which will show a matrix of fst scores across comparisons!
+
+```{r}
+stats <- get.snpR.stats(snpdat, "pop", stats ="fst")
+stats$fst.matrix$pop %>% kable()
+
+plot_pairwise_fst_heatmap(snpdat, facets = "pop")
+```
+
+## Population structure
+
+```{r}
+plot_structure(snpdat, facets = "pop", method = "snapclust", k = 2:10)
+
+plot_structure(snpdat, facets = "pop", method = "snapclust", k = 4)
+```
+
+# Easy mode
+
+Most of the statistics above can be calculated in one step!
+
+```{r}
+snpdat <- calc_basic_snp_stats(x = stickSNPs
+                               , facets = "chr.pop"
+                               , sigma = 200
+                               , step = 50
+                               , par = 8
+                               )
+```
+
+This will calculate $\pi$, Ho, HWE, mafs, private alleles, and pairwise Fst, and calculate smoothed windows for these stats in one easy step.
+
+```{r}
+stats <- get.snpR.stats(x = snpdat
+                        , facets = "chr.pop", stats = "pi")
+stats
+```
+
+## Plot the Smoothed Parameters
+
+```{r}
+ggplot(stats$single.window, aes(x = position, y = pi, color = subfacet)) + 
+  geom_line() + 
+  theme_bw() +
+  facet_wrap(~snp.subfacet, scales = "free_x", ncol = 3)
+```

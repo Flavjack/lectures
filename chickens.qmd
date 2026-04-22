@@ -1,0 +1,87 @@
+---
+title: "Whole genome sequences of 234 indigenous African chickens from Ethiopia"
+format:
+  html:
+    toc: true
+    toc-location: left
+    toc-expand: 4
+    number-sections: true
+    self-contained: true
+    output-file: "ESM_3"
+editor_options: 
+  chunk_output_type: console
+execute: 
+  warning: false
+  echo: true
+---
+
+# Project Setup
+
+```{r}
+#| label:  setup
+
+cran <- c("parallel", "sommer")
+git <- c("hemstrow/snpR") # https://github.com/hemstrow/snpR
+
+suppressPackageStartupMessages({
+  for (pkg in cran) { 
+    if( !require(pkg, character.only = TRUE) ) {
+      install.packages(pkg)
+      library(pkg, character.only = TRUE)
+    } 
+  }
+  
+  for (pkg in git) {
+    if( !require(sub(".*/", "", pkg), character.only = TRUE) ) {
+      devtools::install_github(pkg, upgrade = TRUE)
+      library(sub(".*/", "", pkg), character.only = TRUE)
+    }
+  }
+}); remove(cran, git, pkg)
+
+ncores <- floor(parallel::detectCores()*0.8)
+set.seed(2025)
+
+source('https://inkaverse.com/setup.r')
+
+cat("Project: ", getwd(), "\n")
+session_info()
+```
+
+# Referencias
+
+- https://www.nature.com/articles/s41597-022-01129-4
+- https://www.ebi.ac.uk/eva/?eva-study=PRJEB46494
+
+# snpR
+
+- https://www.nature.com/articles/s41576-024-00738-6/tables/1
+
+# Tranformar datos
+
+```{bash}
+
+#| eval: false
+
+plink2 --vcf exclude/chickens.vcf.gz \
+       --allow-extra-chr \
+       --max-alleles 2 \
+       --mind 0.1 \
+       --geno 0.1 \
+       --maf 0.1 \
+       --indep-pairwise 50 5 0.2 \
+       --thin 0.05 \
+       --export vcf bgz \
+       --out datasets/chickens_small
+```
+
+# Read
+
+```{r}
+pth <- "datasets/chickens_small.vcf.gz"
+
+snpdt <- snpR::read_vcf(file = pth)
+
+snpdt
+```
+

@@ -1,0 +1,135 @@
+---
+title: "RStudioIA"
+author: "Flavio Lozano-Isla"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# Instalar paquete
+
+```{r}
+#| eval: false
+
+library(gander)
+library(ollamar)
+library(usethis)
+```
+
+# Ollama
+
+> https://ollama.com/
+
+1. Crearse una cuenta
+2. Instalar ollama 
+3. Selecionar un modelo para uso local/cloud
+
+# Activar configuración de modelo
+
+```{r}
+ollamar::list_models()
+ollamar::pull("deepseek-v3.1:671b-cloud")
+ollamar::pull("gtp-oss:120b-cloud")
+```
+
+# Variable de entorno
+
+```{r}
+ollamar::list_models()
+usethis::edit_r_profile()
+```
+
+> Incluir en el R profile:
+
+`options(.gander_chat = ellmer::chat_ollama(model = "gpt-oss:120b-cloud"))`
+
+# Configurar atajo de teclado
+
+1. Tools > Modify Keyboard Shortcuts 
+2. Buscar Gander
+3. Configurar atajo: control+shift+G
+
+
+# Evaluar performance
+
+De la base de datos potato del paquete inti, hacer un PCA usando FactoMiner para las variables y los individuos para ver la relación de treat y geno.
+
+## GTP
+
+```{r}
+library(inti)
+library(FactoMineR)
+library(factoextra)
+library(dplyr)
+
+# Variables to treat as supplementary qualitative
+sup_qual <- c("treat","geno","bloque")
+
+# PCA with supplementary qualitative variables
+pca_res <- PCA(
+  potato,
+  quanti.sup = NULL,
+  quali.sup = which(names(potato) %in% sup_qual),
+  graph = FALSE
+)
+
+# Scree plot (eigenvalues)
+fviz_eig(pca_res, addlabels = TRUE, title = "Variance explained")
+
+# Individuals plot colored by treat
+fviz_pca_ind(
+  pca_res,
+  habillage = "treat",
+  addEllipses = TRUE,
+  ellipse.type = "confidence",
+  palette = "jco",
+  title = "Individuals (colored by treat)"
+)
+
+# Variables factor map with contribution coloring
+fviz_pca_var(
+  pca_res,
+  col.var = "contrib",
+  gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+  repel = TRUE,
+  title = "Variables (contributions)"
+)
+
+
+```
+
+## Deepseek
+
+```{r}
+library(inti)
+library(FactoMineR)
+library(factoextra)
+library(dplyr)
+
+pca_res <- PCA(
+  potato,
+  quali.sup = c("treat","geno","bloque"),
+  graph = FALSE
+)
+
+fviz_eig(pca_res)
+
+fviz_pca_ind(
+  pca_res,
+  habillage = "treat",
+  # addEllipses = TRUE,
+  title = "PCA - Individuals by treat"
+)
+
+fviz_pca_ind(
+  pca_res,
+  habillage = "geno",
+  # addEllipses = TRUE,
+  title = "PCA - Individuals by geno"
+)
+
+fviz_pca_var(pca_res)
+
+```
+
+

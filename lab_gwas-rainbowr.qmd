@@ -1,0 +1,150 @@
+---
+title: "RAINBOWR: genome-wide association studies (GWAS)"
+author: "Flavio Lozano-Isla"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    self-contained: true
+editor_options: 
+  chunk_output_type: console
+execute:
+  echo: false
+  warning: false
+---
+
+```{r setup}
+
+#| include=FALSE
+
+source("https://inkaverse.com/docs.r")
+knitr::opts_chunk$set(echo = T)
+
+cran <- c("RAINBOWR", "BiocManager")
+suppressPackageStartupMessages({
+  for (pkg in cran) { 
+    if( !require(pkg, character.only = T) ) {
+      install.packages(pkg)
+      library(pkg, character.only = T)
+    } 
+  }
+})
+remove(cran, pkg)
+
+# BiocManager::install("ggtree")
+
+```
+
+# Info
+
+```{r, eval=FALSE, echo=TRUE}
+browseURL("https://journals.plos.org/ploscompbiol/article?id=10.1371/journal.pcbi.1007663")
+browseURL("https://cran.r-project.org/web/packages/RAINBOWR/vignettes/RAINBOWR.html")
+```
+
+# Base de datos
+
+```{r}
+data("Rice_Zhao_etal")
+# ?Rice_Zhao_etal
+
+phenotype <- Rice_Zhao_etal$pheno
+geno_score <- Rice_Zhao_etal$genoScore
+geno_map <- Rice_Zhao_etal$genoMap
+```
+
+## Datos fenotipicos
+
+```{r}
+web_table(phenotype)
+# str(phenotype)
+```
+
+# Trait selection
+
+```{r}
+names(phenotype)
+
+trait <- "Amylose.content"
+
+phenodata <- phenotype %>% 
+  select({{trait}})
+```
+
+# Clean data
+
+- Remover SNPs with MAF <= 0.05
+
+```{r}
+maf.cut.res <- t(geno_score) %>% 
+  MAF.cut(x.0 = .
+          , map.0 = geno_map)
+
+geno.mat <- maf.cut.res$x
+geno.map <- maf.cut.res$map
+```
+
+# Matriz de relaciones genómicas (GRM)
+
+```{r}
+k.a <- calcGRM(genoMat = geno.mat)
+```
+
+# Formato para GWS
+
+```{r}
+modify.data.res <- modify.data(pheno.mat = phenodata
+                               , geno.mat = geno.mat
+                               , map = geno.map
+                               , return.ZETA = TRUE
+                               , return.GWAS.format = TRUE
+                               )
+
+GWAS.pheno <- modify.data.res$pheno.GWAS
+GWAS.geno <- modify.data.res$geno.GWAS
+GWAS.ZETA <- modify.data.res$ZETA
+```
+
+# GWAS
+
+## Single-SNP GWAS
+
+```{r}
+rgwas.single <- RGWAS.normal(pheno = GWAS.pheno
+                             , geno = GWAS.geno
+                             , ZETA = GWAS.ZETA
+                             , plot.qq = FALSE
+                             , plot.Manhattan = FALSE
+                             , n.PC = 0
+                             , P3D = TRUE
+                             , count = FALSE
+                             , method.thres = "Bonferroni"
+                             )
+
+manhattan(rgwas.single$D)
+qq(rgwas.single$D[, 4])
+```
+
+# Plot grid
+
+```{r, eval=FALSE}
+library(dplyr)
+library(cowplot)
+
+p1 <- ~{
+  par(
+    mar = c(3, 3, 1, 1), 
+    mgp = c(2, 1, 0)
+  )
+manhattan(rgwas.single$D)
+}
+
+list(p1) %>% 
+  plot_grid(plotlist = .
+            , labels = "AUTO"
+            ) %>% 
+  ggsave2("figures/sex-heredity.png", plot = .
+          , width = 20, height = 10, units = "cm")
+```
+

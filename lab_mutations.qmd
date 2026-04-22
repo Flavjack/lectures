@@ -1,0 +1,248 @@
+---
+title: "Quinua: mutaciones en el fitomejoramiento"
+author: "Flavio Lozano-Isla"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    self-contained: true
+editor_options: 
+  chunk_output_type: console
+execute:
+  echo: false
+  warning: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+source("https://inkaverse.com/docs.r")
+
+cran <- c("tidyverse" # limpieza y manipulación de datos
+          , "FactoMineR" # Análisis multivariado
+          , "psych" # Análisis de correlación
+          , "cowplot" # Exportar gráficos
+          )
+
+suppressPackageStartupMessages({
+  for (pkgs in cran) { 
+    if( !require(pkgs, character.only = T) ) {
+      install.packages(pkgs)
+      library(pkgs, character.only = T)
+    } 
+  }
+remove(cran, pkgs)
+})
+```
+
+# Base de datos
+
+Revisar información del experimento.
+
+```{r}
+#| eval: false
+
+browseURL("https://docs.google.com/spreadsheets/d/1hvDeEcqnfo0Nnlxi9DwLLTGsLLZbQq879mMadBK3MqU/edit#gid=1861229811")
+```
+
+```{r}
+url <- "https://docs.google.com/spreadsheets/d/1hvDeEcqnfo0Nnlxi9DwLLTGsLLZbQq879mMadBK3MqU/edit#gid=1861229811"
+
+dt <- gsheet2tbl(url) %>% 
+  data.frame()
+
+dt %>% web_table()
+```
+
+## Modelo estadistico
+
+- ¿Qué modelo estadistico presenta la base de datos?
+  
+  $$y = genotipos + radiacion + genotipos*radiacion + error_{experimental}$$
+
+## Estructura de los datos
+  
+Debo asegurarme que los factores deben estar como tal y las variables deben ser numéricas.
+
+```{r}
+str(dt)
+```
+
+- ´geno´ está cómo ´chr ~ carácter´ y ´radiation´ está cómo ´num ~ numerico´.
+- Debemos transformarlos a factores
+
+```{r}
+fb <- dt %>% 
+  mutate(rad = radiation) %>% 
+  mutate(across(c(geno, radiation), as.factor))
+str(fb)
+```
+
+Ahora, tanto ´geno´ y ´radiation´ ya son factores, podemos continuar con el análisis.
+
+# Análisis de datos
+
+## Correlación
+
+```{r}
+fb %>% 
+  select(where(is.numeric)) %>%
+  pairs.panels(hist.col="red"
+             , pch = 21
+             , method = "pearson"
+             , stars = T
+             , scale = T
+             , lm = T
+             ) 
+```
+
+> ¿Qué correlaciones encuentran en el gráfico que sean interesantes?
+  
+## Redimiento vs radiación
+
+```{r}
+av <- lm(rdto ~ geno + radiation + geno*radiation, fb)
+anova(av)
+```
+
+- Por que la tabla de anova es incorrecta?
+
+> ¿Tendra algún efecto la dósis de radiación con el rendimiento?
+
+```{r}
+av <- aov(rdto ~ radiation, fb)
+anova(av)
+```
+
+> ¿Qué indica el análisis de variancia?
+> ¿Existe diferencias entre las dósis de radiación en el rendimiento?
+> ¿Que tratamiento de radiación fue mejor?
+  
+### Comparación de medias
+  
+```{r}
+mc <- fb %>% 
+  inti::mean_comparison(response = "rdto"
+                        , model_factors = "radiation"
+                        , comparison = "radiation")
+
+fb %>% 
+  plot_raw(x = "radiation", y = "rdto")
+```
+
+> ¿Existe diferencias entre los tratamiento de irradiciación?
+> ¿Cuál fue el mejor tratamiento de irradiación?
+  
+### Gráfica
+  
+```{r}
+mc$comparison %>% 
+  plot_smr(x = "radiation"
+           , y = "rdto"
+           , sig = "sig"
+           , error = "ste"
+           )
+```
+
+> ¿Qué puedo concluir de la aplicación de irradiación en las semillas de quinua?
+  
+## Análisis multivariado
+  
+```{r}
+mv <- fb %>% 
+  column_to_rownames("geno") %>%
+  PCA(X = .
+      , scale.unit = T
+      , quali.sup = 1
+      , graph = F)
+```
+
+### Variables
+
+```{r}
+plot1 <- plot.PCA(mv
+         , choix = "var"
+         )
+
+plot1
+```
+
+> ¿Qué variables estan correlacionadas positivamente?
+> ¿Qué variables estan correlacionadas negativamente?
+  
+### Individuos
+  
+```{r}
+plot2 <- plot.PCA(mv
+         , choix = "ind"
+         , habillage = 1
+         , cex = 0.8
+         , shadowtext = T
+         , label = "ind"
+         , autoLab = "yes"
+         )
+
+plot2
+```
+
+> ¿Qué nivel de radición tuvo mayor efecto en el rendimiento?
+> ¿Qué líneas deberia selecionar para el registro de nueva variedades?
+
+# Plot grid
+
+```{r}
+list(plot1, plot2) %>% 
+  plot_grid(plotlist = ., ncol = 2, labels = "auto"
+            , rel_widths = c(1, 2))
+```
+
+
+```{r}
+#| eval: false
+
+p1 <- ~{
+  
+fb %>% 
+  select(where(is.numeric)) %>% 
+  pairs.panels(hist.col="red"
+             , pch = 21
+             , method = "pearson"
+             , stars = T
+             , scale = F #<
+             , lm = T
+             ) 
+}
+
+p2 <- mc$comparison %>% 
+  plot_smr(x = "radiation"
+           , y = "rdto"
+           , sig = "sig"
+           , error = "ste"
+           , ylab = "Rendimiento (Kg/Ha)"
+           , ylimits = c(0, 3000, 500)
+           )
+
+row1 <- list(p1, p2) %>% 
+  plot_grid(plotlist = .
+            , nrow = 1
+            , labels = "AUTO"
+            , rel_widths = c(1.6, 1)
+            )
+
+row2 <- list(plot1, plot2) %>% 
+  plot_grid(plotlist = .
+            , nrow = 1
+            , labels = c("C", "D")
+            , rel_widths = c(1, 1.8)
+            )
+
+list(row1, row2) %>% 
+  plot_grid(plotlist = .
+            , nrow = 2
+            ) %>% 
+  ggsave2("figures/mutations.jpg", plot = .
+          , width = 30, height = 30, units = "cm")
+```
+

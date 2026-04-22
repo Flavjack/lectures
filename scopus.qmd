@@ -1,0 +1,206 @@
+---
+title: "scopus"
+author: "Flavio Lozano-Isla"
+format: html
+editor_options: 
+  chunk_output_type: console
+---
+
+# Instalar paquete
+
+```{r}
+#| eval: false
+
+library(rscopus)
+library(ggrepel)
+library(viridis)
+source('https://inkaverse.com/setup.r')
+```
+
+# References
+
+https://cran.r-project.org/web/packages/rscopus/vignettes/api_key.html
+https://dev.elsevier.com/apikey/manage
+
+> https://www.scopus.com/results/authorNamesList.uri?sort=count-f&affiliationId=60078119&src=al&st1=Instituto+Nacional+de+Innovaci%c3%b3n+Agraria&sid=412fc65fd8eead4e1d23a5bc81ad73ca&sot=anl&sdt=anl&cluster=autafnameid%2c%22Direcci%c3%b3n+de+Supervisi%c3%b3n+y+Monitoreo+en+las+Estaciones+Experimentales+Agrarias%2360303257%22%2ct&sl=16&s=AF--ID%2860078119%29&resultsPerPage=50&offset=1&jtp=false&currentPage=1&previousSelectionCount=0&tooManySelections=false&showFullList=false&authorPreferredName=&cl=t&authorSearchURL=https%3a%2f%2fwww.scopus.com%2fsearch%2fform.uri%3fdisplay%3dauthorLookup%26st1%3dInstituto%2bNacional%2bde%2bInnovaci%25c3%25b3n%2bAgraria%26affilName%3d%26origin%3dsearchauthorlookup%26returnTo%3dauthorLookup%26txGid%3d87e218662970e3863f7fcef9e84a9357&allField=off&allField2=off&selectionPageSearch=anl&authSubject=LFSC&authSubject=HLSC&authSubject=PHSC&authSubject=SOSC&exactAuthorSearch=false&activeFlag=true&origin=AuthorNamesList&cc=10&multSupersededAuth=&zone=AuthorNamesList&txGid=7d4864892f3c6aec2f4a45a8dc95777c#
+
+```{r}
+# usethis::edit_r_environ()
+have_api_key()
+authorized = is_elsevier_authorized()
+```
+
+# Importar info
+
+```{r}
+gs <- "https://docs.google.com/spreadsheets/d/1XFGquNq7ZBeaogg3CdvVZGIaSZFXxL_gA-cU_vyRIKk/edit#gid=808911840" %>% 
+  as_sheets_id()
+
+fb <- gs %>% 
+  range_read("equipo") %>% 
+  filter(year %in% 2025)
+
+str(fb)
+```
+
+# Producción vs H-Index
+
+```{r}
+total_investigadores <- n_distinct(fb$Colaboradores)
+fecha_consulta <- "2025-12-31"
+total_publicaciones <- 13
+
+px <- fb %>% 
+  mutate(
+    Colaboradores = str_replace(Colaboradores, "^([^ ]+ [^ ]+) ", "\\1\n")
+  ) %>% 
+  mutate(author = paste0(Colaboradores, " (nP: ", prod_total, " - Hi:", `H-index`, ")")) %>% 
+  ggplot(
+    aes(
+      x = prod_total,
+      y = `H-index`,
+      label = author,
+      color = `H-index`
+    )
+  ) +
+  geom_point(size = 3, alpha = 0.9) +
+  geom_text_repel(
+    size = 3,
+    max.overlaps = Inf,
+    box.padding = 0.4,
+    point.padding = 0.3,
+    segment.color = "grey50",
+    show.legend = FALSE
+  ) +
+  scale_color_stepsn(
+    colours = viridis(5),
+    limits = c(0, 5),
+    breaks = seq(0, 5, by = 1),
+    name = "H-index (Scopus)"
+    , guide = guide_colorbar(
+      direction = "horizontal",
+      title.position = "top",
+      title.hjust = 0.5,
+      barwidth = unit(8, "cm"),
+      barheight = unit(0.4, "cm"))
+  ) +
+  labs(
+    x = "N° publicaciones a 31 de diciembre de 2025",
+    y = "H-index (Scopus)",
+    title = "Instituto Nacional de Innovación Agraria (INIA – PERÚ)",
+    subtitle = "Dirección de Servicios Estratégicos Agrarios (DSEA)\nPI El Chira - CUI N° 2472190",
+    caption = paste0(
+      "Leyenda: author (numero de publicaciones - H-index)",
+      "\nTotal de investigadores: ", total_investigadores,
+      "\nTotal de publicaciones: ", total_publicaciones, 
+      "\n*Una publicación puede contabilizarse para más de un autor en casos de coautoría.",
+      "\nFuente: Scopus (Elsevier) – Affiliation ID: 60078119"
+    )
+  ) +
+  theme_minimal(base_size = 12) +
+  theme(
+    plot.title   = element_text(face = "bold"),
+    plot.caption = element_text(size = 9, hjust = 0),
+    legend.position = "bottom",
+    legend.box = "horizontal"
+  )
+
+px
+
+px %>% 
+  ggsave(plot = ., "SCOPUS_EL-CHIRA.jpg", width = 35, height = 25, units = "cm")
+```
+
+# H index
+
+```{r}
+hi <- fb %>%
+  ggplot(aes(x = reorder(Colaboradores, `H-index`), y = `H-index`)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    x = "Autores",
+    y = "H-index",
+    title = "Instituto Nacional de Innovación Agraria (INIA – PERÚ)",
+    subtitle = "Dirección de Servicios Estratégicos Agrarios (DSEA)\nPI El Chira - CUI N° 2472190",
+    caption = paste0("Total de investigadores: ", total_investigadores)
+  ) +
+  theme_minimal()
+
+hi
+
+ggsave("HINDEX_EL-CHIRA.jpg", width = 20, height = 15, units = "cm")
+```
+
+# Producción PI
+
+```{r}
+pro_pi <- fb %>%
+  ggplot(aes(x = reorder(Colaboradores, `prod_pi`), y = `prod_pi`)) +
+  geom_col(fill = "darkblue") +
+  coord_flip() +
+  geom_text(aes(label = prod_pi), hjust = -0.8, size = 3) +
+  scale_y_continuous(limits = c(0, 7)) +
+  labs(
+    x = "Autores",
+    y = "N° publicaciones en el PI El Chira - CUI N° 2472190",
+    # title = "Instituto Nacional de Innovación Agraria (INIA – PERÚ)",
+    # subtitle = "Dirección de Servicios Estratégicos Agrarios (DSEA)\nPI El Chira - CUI N° 2472190",
+    # caption = paste0("Total de investigadores: ", total_investigadores
+    #                  , "\n*Pubaliciones de autoria y co-autoria.")
+  ) +
+  theme_minimal()
+
+pro_pi
+
+ggsave("PRO-PI_EL-CHIRA.jpg", width = 20, height = 8, units = "cm")
+```
+
+# Publicaciones como autor de mayor categoria
+
+```{r}
+pub <- gs %>% 
+  range_read("publications") %>% 
+  filter(Estado %in% c("Publicado", "Aceptado")) 
+
+str(pub)
+
+spub <- pub %>% 
+  group_by(Autores) %>% 
+  summarise(n = n())
+
+pub_bar <- spub %>%
+  ggplot(aes(x = reorder(Autores, n), y = n)) +
+  geom_col() +
+  coord_flip() +
+  labs(
+    x = "Autores",
+    y = "Número de publicaciones",
+    title = "Instituto Nacional de Innovación Agraria (INIA – PERÚ)",
+    subtitle = "Dirección de Servicios Estratégicos Agrarios (DSEA)\nPI El Chira - CUI N° 2472190",
+    caption = paste0("Total de investigadores: ", total_investigadores,
+                     "\nTotal de publicaciones: ", total_publicaciones, 
+                     "\n*Publicaciones como autor de mayor categoria"
+    )
+  ) +
+  theme_minimal()
+
+pub_bar
+
+ggsave("PRODUCTION_EL-CHIRA.jpg", width = 20, height = 15, units = "cm")
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

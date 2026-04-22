@@ -1,0 +1,186 @@
+---
+title: "Equilibrio Hardy-Weinberg"
+author: "Flavio Lozano-Isla"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    self-contained: true
+editor_options: 
+  chunk_output_type: console
+execute:
+  echo: false
+  warning: false
+---
+
+```{r}
+#| label: setup
+#| include: false
+
+source("https://inkaverse.com/docs.r")
+knitr::opts_chunk$set(echo = T)
+
+cran <- c("HardyWeinberg")
+
+suppressPackageStartupMessages({
+  for (pkgs in cran) { 
+    if( !require(pkgs, character.only = T) ) {
+      install.packages(pkgs)
+      library(pkgs, character.only = T)
+    } 
+  }
+remove(cran, pkgs)
+})
+```
+
+# Equilibrio Hardy-Weinberg
+
+El principio de Hardy-Weinberg establece que las frecuencias alélicas y genotípicas de una población permanecerán constantes de generación en generación en ausencia de influencias evolutivas.
+
+Frecuencias alélicas: $p + q = 1$
+
+Frecuencias genotípicas: $p^2 + 2pq + q^2 = 1$
+
+```{r}
+#| eval: false
+
+browseURL("https://cran.r-project.org/web/packages/HardyWeinberg/index.html")
+browseURL("https://cran.r-project.org/web/packages/HardyWeinberg/vignettes/HardyWeinberg.pdf")
+browseURL("https://www.jstatsoft.org/article/view/v064i03")
+```
+
+En ausencia de cualquier fuerza evolutiva, las frecuencias genotípicas medidas deberían ser iguales a las frecuencias genotípicas idealizadas predichas por el principio de Hardy-Weinberg.
+
+```{r}
+# browseURL("https://lozanoisla.com/lectures/files/hw.jfif")
+knitr::include_graphics("https://lozanoisla.com/lectures/files/hw.jfif")
+```
+
+# Datos por frecuencia
+
+Muestra de 1000 individuos genotipados para el locus del grupo sanguíneo MN descrito por Hedrick (2005). Almacenamos los recuentos genotípicos (298, 489 y 213 para MM, MN y NN respectivamente).
+
+# Hipotesis
+
+- H~0~: El locus esta en equilibrio de Hardy-Weinberg
+- H~1~: El locus *NO* esta en equilibrio de Hardy-Weinberg
+
+## Hardy-Weinberg equilibrium: classical tests 
+
+```{r}
+alles <- c(MM = 298, MN = 489, NN = 213)
+HW.test <- HWChisq(X = alles, verbose = TRUE)
+```
+
+Esto muestra que la estadística X^2^ tiene un valor de 0.179 y que el valor p correspondiente para la prueba es **0.672**.
+
+Tomando un nivel de significancia de α = 0.05, **NO** rechazamos la H~0~. El locus MN esta en HWE.
+
+```{r}
+HW.test
+```
+
+`HW.test` es una lista que contiene los resultados de la prueba:
+
+- χ^2^-statistic
+- p-value of the test
+- La mitad de la desviación de HWE (D) para el heterocigoto
+  - $D = 1/2(f_{AB}-e_{AB})$ 
+- La frecuencia alélica (p) de M
+
+## HW using test de Fisher
+
+La prueba exacta de Fisher para HWE se puede realizar usando la rutina `fisher.test` del paquete` stats`.
+
+```{r}
+allesm <- matrix(c(alles[1], alles[2]/2, alles[2]/2, alles[3])
+                 , ncol = 2)
+colnames(allesm) <- c("M", "N")
+rownames(allesm) <- c("M", "N")
+print(allesm)
+
+fisher.test(x = allesm, alternative = "two.sided")
+```
+
+La prueba exacta de Fisher lleva a la misma conclusión, no rechazamos HWE (p = 0.655).
+
+# Datos con marcadores
+
+## Mourant 
+
+Los recuentos de genotipos para el locus del grupo sanguíneo MN para 216 muestras de diferentes poblaciones humanas. Este conjunto de datos fue recopilado por Mourant, Kopeć y Domaniewska-Sobczak (1976)
+
+```{r}
+data(Mourant, package = "HardyWeinberg")
+```
+
+### Ternary plot
+
+```{r}
+Mourant %>% 
+  select(MM:NN) %>%
+  HWTernaryPlot(markerlab = Mourant$Population)
+
+str(Mourant)
+```
+
+Los recuentos de genotipos para el locus MN del grupo sanguíneo para 216 muestras de varias poblaciones humanas de diferente origen geográfico.
+
+El gráfico muestra frecuencias alélicas relativamente más altas para el alelo N en las muestras de Oceanía, y frecuencias alélicas más bajas para este alelo en las muestras esquimales
+
+## HapMapCHBChr1
+
+Base de datos de 225 polimorfismos de un solo nucleótido (SNP) sin datos perdidos del cromosoma 1 para una muestra de 84 individuos de la población China Han de Pekín, compilada a partir de los conjuntos de datos disponibles públicamente del proyecto HapMap <http://hapmap.ncbi.nlm.nih.gov/>.
+
+```{r}
+data("HapMapCHBChr1", package = "HardyWeinberg")
+```
+
+### Ternary plot
+
+```{r}
+dx <- HapMapCHBChr1 %>% 
+  as.data.frame() %>%
+  mutate(snpn = row_number())
+
+dx %>% dplyr::select(AA:BB) %>% 
+  HWTernaryPlot(markerlab = dx$snpn)
+
+dx %>% 
+  filter(snpn == "195")
+```
+
+- Los puntos rojos son los marcadores que NO esta en HWE
+
+# Video sobre evolución
+
+{{< video https://youtu.be/WF5WHEnwNA4 >}}
+
+# Plot grid
+
+```{r}
+library(dplyr)
+library(cowplot)
+
+p1 <- ~{
+Mourant %>% 
+  select(MM:NN) %>%
+  HWTernaryPlot(markerlab = Mourant$Population)
+}
+
+p2 <- ~{
+HapMapCHBChr1 %>% 
+  HWTernaryPlot()
+}
+
+list(p1, p2) %>% 
+  plot_grid(plotlist = .
+            , nrow = 1
+            , labels = "AUTO"
+            ) %>% 
+  ggsave2("figures/evolution.jpg", plot = .
+          , width = 20, height = 10, units = "cm")
+```
+
+

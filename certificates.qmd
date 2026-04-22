@@ -1,0 +1,129 @@
+---
+title: "certificados"
+format:
+  html:
+    toc: true
+    toc-location: left
+    number-sections: true
+    self-contained: true
+    output-file: "code"
+editor_options: 
+  chunk_output_type: console
+execute: 
+  echo: true
+  message: false
+  warning: false
+---
+
+# Setup
+
+```{r}
+#| label: setup
+
+source("https://inkaverse.com/setup.r")
+```
+
+## Field-book
+
+```{r}
+gs <- "https://docs.google.com/spreadsheets/d/1LrQ-rCEbwIztdvbfsHV7SDZccupjzZWiUfMKxGMbmUc/edit?gid=1596223522#gid=1596223522" %>% 
+  as_sheets_id()
+
+fb <- gs %>% 
+  range_read(ss = .,sheet = "users") %>% 
+  unite("user", c("First name", "Last name"), sep = " ") %>% 
+  mutate(across(user, ~toupper(.)))
+
+font <- c("Merriweather Sans")
+huito_fonts(font)
+```
+
+## Labels 
+
+```{r}
+label <- fb %>%
+  label_layout(size = c(29.7, 21.0)
+               , border_width = 1
+               ) %>%
+  include_image(
+    value = "certificate-template.pdf"
+    , size = c(29.7, 21.0)
+    , position = c(29.7/2, 21.0/2)
+    ) %>% 
+  include_image(
+    value = "uniq.png"
+    , size = c(5, 5)
+    , position = c(4.5, 17.8)
+    ) %>% 
+  include_image(
+    value = "https://inkaverse.com/img/inkaverse_slogan_bg.png"
+    , size = c(5, 5)
+    , position = c(25.5, 17.8)
+    ) %>% 
+  include_text(value = "Certificado otorgado a:"
+               , position = c(2.2, 15.2)
+               , size = 16
+               , color = "black"
+               , font = font[1]
+               , opts = list(hjust = 0.0, vjust = 0.0)
+               ) %>% 
+  include_text(value = "user"
+               , position = c(2.2, 14)
+               , size = 30
+               , color = "black"
+               , font = font[1]
+               , opts = list(hjust = 0.0, vjust = 0.0)
+               ) %>% 
+  include_text(value = "Por haber concluido el curso de 36 horas:"
+               , position = c(2.2, 12)
+               , size = 16
+               , color = "black"
+               , font = font[1]
+               , opts = list(hjust = 0.0, vjust = 0.0)
+               ) %>% 
+  include_text(value = "Sci-hub: TICs e Inteligencia Artificial aplicadas a la\ninvestigación y redacción de artículos científicos"
+               , position = c(2.2, 10)
+               , size = 30
+               , color = "black"
+               , font = font[1]
+               , opts = list(hjust = 0.0, vjust = 0.0)
+               ) %>% 
+  include_text(value = "Otorgado el 09 de octubre de 2025"
+               , position = c(2.2, 8)
+               , size = 16
+               , color = "black"
+               , font = font[1]
+               , opts = list(hjust = 0.0, vjust = 0.0)
+               ) %>% 
+  include_text(value = "Flavio Lozano Isla\nInstructor\nInkaverse"
+               , position = c(5.0, 3.5)
+               , size = 15
+               , color = "black"
+               , font = font[1]
+               )  %>% 
+  include_text(value = "Dr. Luis Anibal Espinoza Polo\nVicepresidente Académico\nComisión Organizadora"
+               , position = c(8.7 + 3.85, 3.5)
+               , size = 15
+               , color = "black"
+               , font = font[1]
+               ) %>% 
+  include_text(value = "MSC. Uriel Palomino Trujillo\nDirector de Departamento Académico\nde Ecoturismo y Ciencias Sociales"
+               , position = c(8.7*2 + 4.85, 3.5)
+               , size = 15
+               , color = "black"
+               , font = font[1]
+               )
+  
+label %>% label_print()
+```
+
+```{r}
+#| eval: false
+
+label %>% 
+  label_print(mode = "c"
+              , filename = "certificados"
+              , paper = c(30, 25)
+              )
+```
+
