@@ -1,0 +1,127 @@
+======================== Welcome to MVP =========================
+    an R package for Memory-efficient, Visualization-enhanced    
+     and Parallel-accelerated genome-wide association study      
+                      __  __  __   __  ___                       
+                     |  \/  | \ \ / / | _ \                      
+                     | |\/| |  \ V /  |  _/                      
+                     |_|  |_|   \_/   |_|        Version: 1.4.6  
+  Design & Maintain: Lilin Yin, Haohao Zhang, and Xiaolei Liu    
+  Contributors: Zhenshuang Tang, Jingya Xu, Dong Yin, Zhiwu      
+  Zhang, Xiaohui Yuan, Mengjin Zhu, Shuhong Zhao, Xinyun Li      
+  Mailto: xiaoleiliu@mail.hzau.edu.cn, ylilin@mail.hzau.edu.cn   
+=================================================================
+Start: 2026-04-30 13:26:13 -05 
+The log has been output to the file: datasets/rice/rmvp/gwas/MVP.20260430_132613.log 
+Input data has 413 individuals and 36901 markers 
+Markers are detected to be stored by column 
+Analyzed trait: Seed.volume 
+Number of threads used: 25.6 
+No high performance math library detected! The computational efficiency would be greatly reduced
+Total 36 individuals are removed due to missings 
+Calculate allele frequency... 
+Eigen Decomposition on GRM 
+-------------------------GWAS Start------------------------- 
+General Linear Model (GLM) Start... 
+scanning...
+Genomic inflation factor (lambda): 60.7768 
+Writing results to local file 
+Mixed Linear Model (MLM) Start... 
+Variance components using: BRENT 
+Estimated Vg and Ve: 0.068798 0.002650 
+scanning...
+Genomic inflation factor (lambda): 0.8584 
+Writing results to local file 
+FarmCPU Start... 
+Current loop: 1 out of maximum of 10 
+seqQTN: 
+NULL 
+number of covariates in current loop is: 
+0 
+scanning... 
+Current loop: 2 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+11277 
+number of covariates in current loop is: 
+1 
+scanning... 
+Current loop: 3 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+11277 7819 22451 12251 31645 21392 22403 20671 27835 16925 36357 
+number of covariates in current loop is: 
+11 
+scanning... 
+Current loop: 4 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+11277 18204 31645 32936 27835 18143 28770 10156 15043 22451 21392 16925 12251 7819 36357 22403 20671 
+number of covariates in current loop is: 
+17 
+scanning... 
+Current loop: 5 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+11277 22451 32936 31645 27835 28770 16925 10156 18143 25287 36086 17675 18204 15043 7819 36357 22403 12251 21392 20671 
+number of covariates in current loop is: 
+20 
+scanning... 
+Current loop: 6 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+28770 31645 11277 24079 27835 18143 10156 16925 18204 32936 22451 7819 15043 25287 12251 36357 17675 22403 21392 20671 
+number of covariates in current loop is: 
+20 
+scanning... 
+Current loop: 7 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+24079 28770 16925 31645 32936 10156 18143 25287 27835 22451 28816 21177 18204 36357 7819 22403 11277 17675 15043 12251 21392 20671 
+number of covariates in current loop is: 
+22 
+scanning... 
+Current loop: 8 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+28770 16925 25287 32936 10156 24079 18143 31645 21177 28816 36357 18204 11277 22451 7819 17675 27835 12251 22403 15043 21392 20671 
+number of covariates in current loop is: 
+22 
+scanning... 
+Genomic inflation factor (lambda): 1.0195 
+Writing results to local file 
+Significant level: 1.35e-06 
+---------------------Visualization Start-------------------- 
+Phenotype distribution Plotting 
+SNP_Density Plotting 
+Circular_Manhattan Plotting Seed.volume.GLM 
+Circular_Manhattan Plotting Seed.volume.MLM 
+Circular_Manhattan Plotting Seed.volume.FarmCPU 
+Rectangular_Manhattan Plotting Seed.volume.GLM 
+Rectangular_Manhattan Plotting Seed.volume.MLM 
+Rectangular_Manhattan Plotting Seed.volume.FarmCPU 
+Q_Q Plotting Seed.volume.GLM 
+Q_Q Plotting Seed.volume.MLM 
+Q_Q Plotting Seed.volume.FarmCPU 
+Multracks_Rectangular Plotting Seed.volume.GLM 
+Multracks_Rectangular Plotting Seed.volume.MLM 
+Multracks_Rectangular Plotting Seed.volume.FarmCPU 
+Multracks_QQ Plotting Seed.volume.GLM 
+Multracks_QQ Plotting Seed.volume.MLM 
+Multracks_QQ Plotting Seed.volume.FarmCPU 
+Multraits_QQ Plotting Seed.volume.GLM 
+Multraits_QQ Plotting Seed.volume.MLM 
+Multraits_QQ Plotting Seed.volume.FarmCPU 
+Results are stored at Working Directory: datasets/rice/rmvp/gwas 
+End: 2026-04-30 13:27:43 -05 
+Total running time: 1m30s 
+===================== MVP ACCOMPLISHED ===================== 
+SNP_Density Plotting 
+Multracks_Rectangular Plotting Seed.volume.GLM 
+Multracks_Rectangular Plotting Seed.volume.MLM 
+Multracks_Rectangular Plotting Seed.volume.FarmCPU 
+Multracks_QQ Plotting Seed.volume.GLM 
+Multracks_QQ Plotting Seed.volume.MLM 
+Multracks_QQ Plotting Seed.volume.FarmCPU 
+Multraits_QQ Plotting Seed.volume.GLM 
+Multraits_QQ Plotting Seed.volume.MLM 
+Multraits_QQ Plotting Seed.volume.FarmCPU 

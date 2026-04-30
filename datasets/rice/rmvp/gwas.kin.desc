@@ -1,0 +1,5 @@
+new("big.matrix.descriptor", description = list(sharedType = "FileBacked", 
+    filename = "gwas.kin.bin", dirname = "datasets/rice/rmvp/", 
+    totalRows = 413L, totalCols = 413L, rowOffset = c(0, 413), 
+    colOffset = c(0, 413), nrow = 413, ncol = 413, rowNames = NULL, 
+    colNames = NULL, type = "double", separated = FALSE))

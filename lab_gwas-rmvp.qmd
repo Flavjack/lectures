@@ -19,8 +19,6 @@ execute:
 ```{r}
 #| label:  setup
 
-source("https://inkaverse.com/docs.r")
-
 cran <- c("devtools", "tidyverse", "openxlsx", "rMVP", "CMplot")
 git <- c("hemstrow/snpR") 
 
@@ -40,20 +38,17 @@ suppressPackageStartupMessages({
   }
 }); remove(cran, git, pkg)
 
-cat("Project: ", getwd(), "\n")
-cat("cores: ", parallel::detectCores())
-cores <- parallel::detectCores()*0.8
-session_info()
+source("https://inkaverse.com/docs.r")
 ```
 
 # Reference
 
--   (article) https://www.nature.com/articles/ncomms1467
--   (44K SNP set) http://www.ricediversity.org/data/
--   (data) http://ricediversity.org/data/sets/44kgwas/
--   https://github.com/hemstrow/snpR/blob/master/vignettes/snpR_introduction.Rmd
--   https://doi.org/10.32614/CRAN.package.rMVP
--   https://www.cog-genomics.org/plink/2.0/
+- (article) https://www.nature.com/articles/ncomms1467
+- (44K SNP set) http://www.ricediversity.org/data/
+- (data) http://ricediversity.org/data/sets/44kgwas/
+- https://github.com/hemstrow/snpR/blob/master/vignettes/snpR_introduction.Rmd
+- https://doi.org/10.32614/CRAN.package.rMVP
+- https://www.cog-genomics.org/plink/2.0/
 - https://www.nature.com/articles/s41576-024-00738-6
 
 # Tranformar datos
@@ -61,19 +56,19 @@ session_info()
 ```{bash}
 #| eval: false
 
-plink2 --ped RiceDiversity/sativas413.ped \
-       --map RiceDiversity/sativas413.map \
+plink2 --ped datasets/rice/sativas413.ped \
+       --map datasets/rice/sativas413.map \
        --export vcf \
-       --out RiceDiversity/sativas413
+       --out datasets/rice/sativas413
 ```
 
 # Import data
 
 ```{r}
-pheno <- read.xlsx("RiceDiversity/sativas413.xlsx")
-geno <- snpR::read_vcf("RiceDiversity/sativas413.vcf")
+pheno <- read.xlsx("datasets/rice/sativas413.xlsx")
+geno <- snpR::read_vcf("datasets/rice/sativas413.vcf")
 
-info <- read.xlsx("RiceDiversity/sativas413info.xlsx") %>% 
+info <- read.xlsx("datasets/rice/sativas413info.xlsx") %>% 
   select(id = "GSOR.ID", spop = "Sub-population") %>% 
   tibble()
 
@@ -112,19 +107,19 @@ sample_meta <- geno %>%
   mutate(HybID = gsub("_.*", "", Taxa)) %>% 
   select(!name)
   
-pheno <- read.xlsx("RiceDiversity/sativas413.xlsx") %>% 
+pheno <- read.xlsx("datasets/rice/sativas413.xlsx") %>% 
   base::merge(., sample_meta) %>% 
   select(Taxa, everything()) %>% 
   select(!HybID) %>% 
-  write_csv("RiceDiversity/mvp/sativas413.csv")
+  write_csv("datasets/rice/sativas413.csv")
 
-MVP.Data(fileVCF = "RiceDiversity/sativas413.vcf"
-         , filePhe = "RiceDiversity/mvp/sativas413.csv"
+MVP.Data(fileVCF = "datasets/rice/sativas413.vcf"
+         , filePhe = "datasets/rice/sativas413.csv"
          , sep.phe = ","
          , priority = "speed"
          , fileKin = FALSE
          , filePC = FALSE
-         , out = "RiceDiversity/mvp/gwas"
+         , out = "datasets/rice/rmvp/gwas"
          )
 ```
 
@@ -132,17 +127,17 @@ MVP.Data(fileVCF = "RiceDiversity/sativas413.vcf"
 
 ```{r}
 MVP.Data.Kin(fileKin = TRUE
-             , mvp_prefix = 'RiceDiversity/mvp/gwas'
-             , out = 'RiceDiversity/mvp/gwas')
+             , mvp_prefix = 'datasets/rice/rmvp/gwas'
+             , out = 'datasets/rice/rmvp/gwas')
 ```
 
 ## Data input
 
 ```{r}
-phenotype <- read.table("RiceDiversity/mvp/gwas.phe", head = TRUE)
-genotype <- attach.big.matrix("RiceDiversity/mvp/gwas.geno.desc")
-mapping <- read.table("RiceDiversity/mvp/gwas.geno.map", head = TRUE)
-kinship <- attach.big.matrix("RiceDiversity/mvp/gwas.kin.desc")
+phenotype <- read.table("datasets/rice/rmvp/gwas.phe", head = TRUE)
+genotype <- attach.big.matrix("datasets/rice/rmvp/gwas.geno.desc")
+mapping <- read.table("datasets/rice/rmvp/gwas.geno.map", head = TRUE)
+kinship <- attach.big.matrix("datasets/rice/rmvp/gwas.kin.desc")
 ```
 
 ## GWAS
@@ -159,7 +154,7 @@ imMVP <- MVP(
   , map = mapping
   , K = kinship
   , method = c("GLM", "MLM", "FarmCPU")
-  , outpath = "RiceDiversity/mvp/gwas"
+  , outpath = "datasets/rice/rmvp/gwas"
   , file.output = TRUE
   , file.type = "csv"
   , ncpus = cores
@@ -175,7 +170,7 @@ MVP.Report(MVP = imMVP
            , plot.type="d"
            , col=c("darkgreen", "yellow", "red")
            , file.type = "jpg", dpi = 300
-           , outpath = "RiceDiversity/mvp/gwas"
+           , outpath = "datasets/rice/rmvp/gwas"
            )
 ```
 
@@ -183,7 +178,7 @@ MVP.Report(MVP = imMVP
 
 ```{r}
 MVP.Hist(phe = trait
-         , outpath = "RiceDiversity/mvp/gwas"
+         , outpath = "datasets/rice/rmvp/gwas"
          , file.type = "jpg", breakNum = 18, dpi = 300)
 ```
 
@@ -203,7 +198,7 @@ MVP.Report(imMVP
            , signal.col = c("red","green")
            , signal.cex = c(1,1)
            , file.type = "jpg", memo = "", dpi = 300
-           , outpath = "RiceDiversity/mvp/gwas"
+           , outpath = "datasets/rice/rmvp/gwas"
         )
 ```
 
@@ -220,6 +215,6 @@ MVP.Report(imMVP
            , box = FALSE 
            , multracks = TRUE
            , file.type="jpg",memo="",dpi=300
-           , outpath = "RiceDiversity/mvp/gwas"
+           , outpath = "datasets/rice/rmvp/gwas"
            )
 ```
