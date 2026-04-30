@@ -39,6 +39,11 @@ suppressPackageStartupMessages({
 }); remove(cran, git, pkg)
 
 source("https://inkaverse.com/docs.r")
+
+cat("Project: ", getwd(), "\n")
+cat("cores: ", parallel::detectCores())
+cores <- parallel::detectCores()*0.8
+session_info()
 ```
 
 # Reference
@@ -50,6 +55,7 @@ source("https://inkaverse.com/docs.r")
 - https://doi.org/10.32614/CRAN.package.rMVP
 - https://www.cog-genomics.org/plink/2.0/
 - https://www.nature.com/articles/s41576-024-00738-6
+- https://github.com/hemstrow/snpR
 
 # Tranformar datos
 
@@ -79,6 +85,8 @@ sample_meta <- geno %>%
   bind_cols(., info)
 
 sample.meta(geno)$spop <- sample_meta$spop
+
+geno
 
 sample.meta(geno)
 snp.meta(geno)
@@ -146,7 +154,7 @@ kinship <- attach.big.matrix("datasets/rice/rmvp/gwas.kin.desc")
 phenotype %>% names()
 
 trait <- phenotype %>% 
-  select(1, "Seed.volume")
+  select(1, "Seed.width")
 
 imMVP <- MVP(
   phe = trait
