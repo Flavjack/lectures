@@ -61,6 +61,7 @@ data(hyper)
 hyper <- drop.nullmarkers(hyper)
 summary(hyper)
 plotRF(hyper)
+# browseURL("https://bioinformaticsworkbook.org/dataAnalysis/GenomeAssembly/GeneticMaps/assets/CML247_Fig-6a_recombination-fraction-combined.png")
 plotMap(hyper, show.marker.names=TRUE)
 ```
 
@@ -82,9 +83,9 @@ outfile %>% knitr::include_graphics()
 
 ## Base de datos
 
-Base de datos simulado de 300 individuos en F2 con 100 marcadores en 5 cromosomas (grupos de recombinación ~ cromosomas).
+Base de datos simulado de 300 individuos en F2 con 100 marcadores en 5 cromosomas (grupos de recombinación).
 
-FR <= 50%
+> FR <= 50%
 
 ```{r}
 data(mapthis)
@@ -186,6 +187,7 @@ todrop <- rownames(gt[gt$P.value < 1e-10,])
 print(todrop) # marcadores omitidos
 mapthis <- drop.markers(mapthis, todrop)
 gt <- geno.table(mapthis)
+gt
 ```
 
 ## Estudio de las frecuencia genotipicas
@@ -283,7 +285,7 @@ mapthis <- formLinkageGroups(
 plotRF(mapthis)
 ```
 
-- Ahora estan en 5 grupos de recombinación ==> 5 cromosomas
+- Ahora estan en 5 grupos de recombinación => 5 cromosomas
 
 ## Ordenar marcadores
 
@@ -292,16 +294,18 @@ plotRF(mapthis)
 ```{r}
 mapthis <- orderMarkers(mapthis, chr=5)
 pull.map(mapthis, chr=5)
+
 rip5 <- ripple(mapthis, chr=5, window=7)
 
 rip5lik <- ripple(mapthis, chr=5, window=4
-                  , method="likelihood"
+                  , method = "likelihood"
                   , error.prob=0.005)
 
 summary(rip5)
 
 mapthis <- orderMarkers(mapthis, chr=4)
 pull.map(mapthis, chr=4)
+
 rip4 <- ripple(mapthis, chr=4, window=7)
 
 # rip4lik <- ripple(mapthis, chr=4, window=4
@@ -310,6 +314,7 @@ rip4 <- ripple(mapthis, chr=4, window=7)
 
 mapthis <- orderMarkers(mapthis, chr=3)
 pull.map(mapthis, chr=3)
+
 rip3 <- ripple(mapthis, chr=3, window=7)
 
 # rip3lik <- ripple(mapthis, chr=3, window=4
@@ -318,6 +323,7 @@ rip3 <- ripple(mapthis, chr=3, window=7)
 
 mapthis <- orderMarkers(mapthis, chr=2)
 pull.map(mapthis, chr=2)
+
 rip2 <- ripple(mapthis, chr=2, window=7)
 
 # rip2lik <- ripple(mapthis, chr=2, window=4, method="likelihood"
@@ -325,6 +331,7 @@ rip2 <- ripple(mapthis, chr=2, window=7)
 
 mapthis <- orderMarkers(mapthis, chr=1)
 pull.map(mapthis, chr=1)
+
 rip1 <- ripple(mapthis, chr=1, window=7)
 
 # rip1lik <- ripple(mapthis, chr=1, window=4, method="likelihood"
