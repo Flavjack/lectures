@@ -86,13 +86,13 @@ gen_data <- snp[,3:ncol(snp)]
 snpdat <- import.snpR.data(genotypes = gen_data
                            , snp.meta = snp_meta
                            , sample.meta = sample_meta)
+
+snpdat
 ```
 
 ## snpRdata objects and facets
 
 ```{r}
-snpdat
-
 # get the number of samples
 nsamps(snpdat)
 ncol(snpdat)
@@ -208,7 +208,7 @@ snpdat <- calc_hwe(snpdat, "pop")
 stats <- get.snpR.stats(snpdat, "pop"
                         , stats = c("maf", "pi", "ho", "he", "hwe"))
 
-stats
+stats %>% kable()
 ```
 
 ## Pairwise Fst calculation

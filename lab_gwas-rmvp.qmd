@@ -53,6 +53,7 @@ session_info()
 - (data) http://ricediversity.org/data/sets/44kgwas/
 - https://github.com/hemstrow/snpR/blob/master/vignettes/snpR_introduction.Rmd
 - https://doi.org/10.32614/CRAN.package.rMVP
+- https://github.com/xiaolei-lab/rMVP
 - https://www.cog-genomics.org/plink/2.0/
 - https://www.nature.com/articles/s41576-024-00738-6
 - https://github.com/hemstrow/snpR
@@ -154,7 +155,7 @@ kinship <- attach.big.matrix("datasets/rice/rmvp/gwas.kin.desc")
 phenotype %>% names()
 
 trait <- phenotype %>% 
-  select(1, "Seed.width")
+  select(1, "Panicle.length")
 
 imMVP <- MVP(
   phe = trait

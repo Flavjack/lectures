@@ -1,4 +1,4 @@
-PLINK v2.0.0-a.6.23 64-bit (24 Aug 2025)
+PLINK v2.0.0-a.7.1 64-bit (4 May 2026)
 Options in effect:
   --export vcf
   --map datasets/rice/sativas413.map
@@ -7,9 +7,9 @@ Options in effect:
 
 Hostname: DESKTOP-KMQ612S
 Working directory: C:\Users\LENOVO\git\lectures
-Start time: Thu Apr 30 13:22:41 2026
+Start time: Sat May 09 11:20:20 2026
 
-Random number seed: 1777573361
+Random number seed: 1778343620
 32440 MiB RAM detected; reserving 16220 MiB for main workspace.
 Using up to 32 threads (change this with --threads).
 --pedmap: 36901 variants in .map file.
@@ -28,4 +28,4 @@ datasets/rice/sativas413-temporary.psam.
 Note: No phenotype data present.
 --export vcf to datasets/rice/sativas413.vcf ... done.
 
-End time: Thu Apr 30 13:22:42 2026
+End time: Sat May 09 11:20:21 2026

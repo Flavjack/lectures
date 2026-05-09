@@ -1,0 +1,120 @@
+======================== Welcome to MVP =========================
+    an R package for Memory-efficient, Visualization-enhanced    
+     and Parallel-accelerated genome-wide association study      
+                      __  __  __   __  ___                       
+                     |  \/  | \ \ / / | _ \                      
+                     | |\/| |  \ V /  |  _/                      
+                     |_|  |_|   \_/   |_|        Version: 1.4.6  
+  Design & Maintain: Lilin Yin, Haohao Zhang, and Xiaolei Liu    
+  Contributors: Zhenshuang Tang, Jingya Xu, Dong Yin, Zhiwu      
+  Zhang, Xiaohui Yuan, Mengjin Zhu, Shuhong Zhao, Xinyun Li      
+  Mailto: xiaoleiliu@mail.hzau.edu.cn, ylilin@mail.hzau.edu.cn   
+=================================================================
+Start: 2026-05-09 12:07:55 -05 
+The log has been output to the file: datasets/rice/rmvp/gwas/MVP.20260509_120755.log 
+Input data has 413 individuals and 36901 markers 
+Markers are detected to be stored by column 
+Analyzed trait: Plant.height 
+Number of threads used: 25.6 
+No high performance math library detected! The computational efficiency would be greatly reduced
+Total 30 individuals are removed due to missings 
+Calculate allele frequency... 
+Eigen Decomposition on GRM 
+-------------------------GWAS Start------------------------- 
+General Linear Model (GLM) Start... 
+scanning...
+Genomic inflation factor (lambda): 43.7053 
+Writing results to local file 
+Mixed Linear Model (MLM) Start... 
+Variance components using: BRENT 
+Estimated Vg and Ve: 468.444024 68.739953 
+scanning...
+Genomic inflation factor (lambda): 0.943 
+Writing results to local file 
+FarmCPU Start... 
+Current loop: 1 out of maximum of 10 
+seqQTN: 
+NULL 
+number of covariates in current loop is: 
+0 
+scanning... 
+Current loop: 2 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+3734 20552 20074 
+number of covariates in current loop is: 
+3 
+scanning... 
+Current loop: 3 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+20074 4952 3734 25878 28842 24582 11821 8478 10453 34790 14491 20552 
+number of covariates in current loop is: 
+12 
+scanning... 
+Current loop: 4 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+20074 3734 18118 11297 4952 34790 11821 10453 28842 14491 8478 
+number of covariates in current loop is: 
+11 
+scanning... 
+Current loop: 5 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+3734 4952 18118 11297 20074 6792 28842 34790 10215 30806 14491 11821 10453 8478 
+number of covariates in current loop is: 
+14 
+scanning... 
+Current loop: 6 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+18118 3734 4952 11297 34790 34700 10215 10453 30806 28842 102 22744 6792 20074 11821 14491 8478 
+number of covariates in current loop is: 
+17 
+scanning... 
+Current loop: 7 out of maximum of 10 
+Optimizing Pseudo QTNs... 
+seqQTN: 
+18118 4952 3734 30806 11297 34790 10215 10453 8478 28842 6792 14491 34700 20074 11821 102 22744 
+number of covariates in current loop is: 
+17 
+scanning... 
+Genomic inflation factor (lambda): 1.169 
+Writing results to local file 
+Significant level: 1.35e-06 
+---------------------Visualization Start-------------------- 
+Phenotype distribution Plotting 
+SNP_Density Plotting 
+Circular_Manhattan Plotting Plant.height.GLM 
+Circular_Manhattan Plotting Plant.height.MLM 
+Circular_Manhattan Plotting Plant.height.FarmCPU 
+Rectangular_Manhattan Plotting Plant.height.GLM 
+Rectangular_Manhattan Plotting Plant.height.MLM 
+Rectangular_Manhattan Plotting Plant.height.FarmCPU 
+Q_Q Plotting Plant.height.GLM 
+Q_Q Plotting Plant.height.MLM 
+Q_Q Plotting Plant.height.FarmCPU 
+Multracks_Rectangular Plotting Plant.height.GLM 
+Multracks_Rectangular Plotting Plant.height.MLM 
+Multracks_Rectangular Plotting Plant.height.FarmCPU 
+Multracks_QQ Plotting Plant.height.GLM 
+Multracks_QQ Plotting Plant.height.MLM 
+Multracks_QQ Plotting Plant.height.FarmCPU 
+Multraits_QQ Plotting Plant.height.GLM 
+Multraits_QQ Plotting Plant.height.MLM 
+Multraits_QQ Plotting Plant.height.FarmCPU 
+Results are stored at Working Directory: datasets/rice/rmvp/gwas 
+End: 2026-05-09 12:08:22 -05 
+Total running time: 27s 
+===================== MVP ACCOMPLISHED ===================== 
+SNP_Density Plotting 
+Multracks_Rectangular Plotting Plant.height.GLM 
+Multracks_Rectangular Plotting Plant.height.MLM 
+Multracks_Rectangular Plotting Plant.height.FarmCPU 
+Multracks_QQ Plotting Plant.height.GLM 
+Multracks_QQ Plotting Plant.height.MLM 
+Multracks_QQ Plotting Plant.height.FarmCPU 
+Multraits_QQ Plotting Plant.height.GLM 
+Multraits_QQ Plotting Plant.height.MLM 
+Multraits_QQ Plotting Plant.height.FarmCPU 
