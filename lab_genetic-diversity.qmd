@@ -148,7 +148,7 @@ get.snpR.stats(snpdat, facets = "pop", stats = c("he", "ho"))$weighted.means
 ### Complex Facets
 
 ```{r}
-snpdat <- calc_ho(snpdat, "pop.fam") # running the calculation
+snpdat <- calc_ho(snpdat, facets = "pop.fam") # running the calculation
 get.snpR.stats(snpdat, "pop.fam", stats = "ho")$weighted.means # retrieving the results
 ```
 
@@ -231,9 +231,9 @@ plot_pairwise_fst_heatmap(snpdat, facets = "pop")
 ## Population structure
 
 ```{r}
-plot_structure(snpdat, facets = "pop", method = "snapclust", k = 2:10)
+plot_structure(snpdat, "pop", k = 2:10, clumpp = FALSE)
 
-plot_structure(snpdat, facets = "pop", method = "snapclust", k = 4)
+plot_structure(snpdat, "pop", k = 5, clumpp = FALSE)
 ```
 
 # Easy mode
