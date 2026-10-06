@@ -1,0 +1,277 @@
+---
+title: "Factorial y Multivariate"
+format:
+  html:
+    toc: true
+    toc-expand: true
+    toc-depth: 4
+    toc-location: left
+    number-sections: true
+    self-contained: true
+    code-fold: false
+editor_options: 
+  chunk_output_type: console
+execute: 
+  warning: false
+  message: false
+  echo: true
+---
+
+# Project Setup
+
+```{r}
+#| label: setup
+
+source('https://inkaverse.com/setup.r')
+```
+
+# Data import
+
+```{r}
+gs <- "https://docs.google.com/spreadsheets/d/15r7ZwcZZHbEgltlF6gSFvCTFA-CFzVBWwg3mFlRyKPs/edit?gid=172957346#gid=172957346" %>% 
+  as_sheets_id()
+
+fb <- gs %>% 
+  range_read(ss = .,sheet = "fb") %>% 
+  mutate(across(c(1:replication), ~ as.factor(.))) 
+
+fb %>% str()
+```
+
+# Análisis Factorial
+
+## Box plot
+
+```{r}
+ggplot(fb, aes(x = genotype, y = hi, fill = irrigation)) +
+  geom_boxplot() +
+  theme_classic()
+```
+
+## Modelo estadistico
+
+$$y = \mu + block + genotype + irrigation + genotype*irrigation + error$$
+
+## ANOVA
+
+```{r}
+md <- aov(tubdw ~ block + 
+            genotype + irrigation + 
+            genotype*irrigation, fb)
+
+anova(md)
+
+plot(md)
+```
+
+## Comparación de medias
+
+```{r}
+mc_i <- md %>% 
+  emmeans(~ irrigation | genotype) %>% 
+  cld(Letters = letters, reversed = TRUE) %>% 
+  mutate(across(".group", trimws)) %>% 
+  mutate(across(".group", tolower)) %>% 
+  rename(sig_i = ".group")
+
+mc_o <- md %>% 
+  emmeans(~ genotype | irrigation) %>% 
+  cld(Letters = letters, reversed = TRUE) %>% 
+  mutate(across(".group", trimws)) %>% 
+  mutate(across(".group", toupper)) %>% 
+  rename(sig_o = ".group")
+
+mc <- merge(mc_i, mc_o) %>% 
+  unite(col = "sig", c("sig_i", "sig_o"), sep = "")
+```
+
+## Gráfico
+
+```{r}
+mc %>% 
+  plot_smr(type = "line"
+           , x = "genotype"
+           , y = "emmean"
+           , group = "irrigation"
+           , sig = "sig"
+           , sigsize = 2
+           , error = "SE"
+           )
+```
+
+# Multivariate
+
+```{r}
+#| eval: false
+
+library(factoextra)
+
+dtx <- fb %>% 
+  dplyr::select(!c("block", "replication")) %>% 
+  group_by(irrigation, genotype) %>% 
+  summarise(across(where(is.numeric), ~ mean(.x, na.rm = TRUE))) %>% 
+  unite("rowname", c("irrigation", "genotype"), remove = F, sep = "-") %>% 
+  column_to_rownames() %>% 
+  as.data.frame()
+
+str(dtx)
+  
+mv <- dtx %>% 
+  PCA(scale.unit = T
+      , graph = F
+      , quali.sup = c(1, 2))
+
+var <- mv %>% 
+  plot.PCA(choix = c("var"), cex=0.7)
+
+cos <- mv %>% 
+  fviz_pca_var(col.var = "cos2"
+               , gradient.cols = c("red", "blue", "green")
+               , repel = TRUE
+               , labelsize = 2)
+
+ind <- mv %>% 
+  plot.PCA(choix = c("ind")
+           , cex = 0.7
+           , label = "ind"
+           , invisible = "quali"
+           , col.hab = inti:::paleta()
+           , habillage = 1
+           )
+
+pcainfo <- factoextra::get_pca(mv); pcainfo
+
+pcainfo$cor %>% kable(caption = "Variable correlations")
+pcainfo$contrib %>% kable(caption = "Variable Contribution")
+pcainfo$cos2 %>% kable(caption = "Variable Cos2")
+
+cls <- mv %>% HCPC(nb.clust = -1, graph = FALSE)
+
+map <- \() {plot.HCPC(cls, choice = "map", draw.tree = FALSE)}
+
+cls$call$t$tree
+cls$data.clust %>% 
+  kable(caption = "Cluster membership of each individual")  
+cls$desc.var$quanti %>% 
+  kable(caption = "Quantitative variables characterizing each cluster")
+cls$desc.var$category%>% 
+  kable(caption = "Categorical variables significantly by cluster")  
+table(cls$data.clust$clust) %>% 
+  kable(caption = "Number of individuals assigned to each cluster")
+
+plot <- list(var, cos, ind, map) %>% 
+  plot_grid(plotlist = ., ncol = 2, labels = "auto") %>% 
+  ggsave(plot = ., "manuscript/multivariate.jpg", units = "cm"
+                , width = 30, height = 30)
+
+plot %>% include_graphics()
+```
+
+## PCA information
+
+```{r}
+c1 <- fviz_eig(mv, 
+                addlabels = TRUE,
+                hjust = 0.05,
+                barfill="white",
+                barcolor ="darkblue",
+                linecolor ="red") + 
+  # ylim(0, 30) +
+  labs(
+    title = "PCA - percentage of explained variances",
+    y = "Variance (%)") +
+  theme_minimal()  +
+  theme(
+    axis.text.x = element_text(size = 12)
+    , axis.text.y = element_text(size = 12)
+  )
+
+c1
+
+c2 <- fviz_contrib(mv,
+                     choice = "var", 
+                     axes = 1, 
+                     top = 30,
+                     fill="white",
+                     color ="darkblue"
+                   , sort.val = "asc"
+                   ) +
+  # ylim(0, 8) +
+  labs(title = "Dim 1 - variables contribution", x = "") +
+  coord_flip()  +
+  theme(
+    axis.text.x = element_text(size = 12)
+    , axis.text.y = element_text(size = 12)
+  )
+
+c2
+
+c3 <- fviz_contrib(mv,
+                     choice = "var", 
+                     axes = 2, 
+                     top = 30,
+                     fill="white",
+                     color ="darkblue"
+                   , sort.val = "asc"
+                   ) +
+  # ylim(0, 8) +
+  labs(title = "Dim 2 - variables contribution", x = "") +
+  coord_flip()  +
+  theme(
+    axis.text.x = element_text(size = 12)
+    , axis.text.y = element_text(size = 12)
+  )
+
+c3
+
+lpanel <- c(c1, c2, c3) %>% 
+  plot_grid(plotlist = ., ncol = 1, labels = "auto"
+            , rel_heights = c(1, 1.2, 1.2))
+  
+rpanel <- \() {
+  
+pcainfo$cos2[, 1:2] %>% 
+  corrplot::corrplot(
+    is.corr = F
+    , method = "number",
+    type = "full",
+    tl.col = "black",
+    tl.srt = 45,
+    tl.cex = 0.9, 
+    number.cex = 0.5, 
+    number.digits = 1,
+    cl.cex = 0.7,
+    cl.pos = "r",
+    cl.align = "r",
+    cl.ratio = 4 
+  )
+
+}
+
+grid <- c(lpanel, rpanel) %>% 
+  plot_grid(plotlist = ., ncol = 2, labels = c("", "d"))
+
+plot <- grid %>% 
+  ggsave(plot = ., "manuscript/contribution.jpg"
+         , units = "cm"
+         , width = 28, height = 36)
+
+plot %>% include_graphics()
+```
+
+
+# References
+
+Broman, K. W., & Woo, K. H. (2017). Data organization in spreadsheets. The American Statistician, 72(1), 2–10. https://doi.org/10.1080/00031305.2017.1375989
+
+Zuur, A. F., Ieno, E. N., & Elphick, C. S. (2009). A protocol for data exploration to avoid common statistical problems. Methods in Ecology and Evolution, 1(1), 3–14. https://doi.org/10.1111/j.2041-210x.2009.00001.x
+
+Francoishusson. (2017, July 13). PCA course using FactoMineR | R-bloggers. R-bloggers. https://www.r-bloggers.com/2017/07/pca-course-using-factominer/
+
+Kozak, M., & Piepho, H. (2017). What’s normal anyway? Residual plots are more telling than significance tests when checking ANOVA assumptions. Journal of Agronomy and Crop Science, 204(1), 86–98. https://doi.org/10.1111/jac.12220
+
+Tanaka, E., & Hui, F. K. C. (2019). Symbolic formulae for linear mixed models. In Communications in computer and information science (pp. 3–21). https://doi.org/10.1007/978-981-15-1960-4_1
+
+Schielzeth, H., Dingemanse, N. J., Nakagawa, S., Westneat, D. F., Allegue, H., Teplitsky, C., Réale, D., Dochtermann, N. A., Garamszegi, L. Z., & Araya‐Ajoy, Y. G. (2020). Robustness of linear mixed‐effects models to violations of distributional assumptions. Methods in Ecology and Evolution, 11(9), 1141–1152. https://doi.org/10.1111/2041-210x.13434
+
+Jambor, H. K. (2025). A checklist for designing and improving the visualization of scientific data. Nature Cell Biology, 27(6), 879–883. https://doi.org/10.1038/s41556-025-01684-z

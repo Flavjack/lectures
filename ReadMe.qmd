@@ -4,26 +4,61 @@ Flavio Lozano Isla <flozanoisla@gmail.com>
 
 ---
 
-## Datasets
+# Data-sets
 
+Diaz-Saucedo, Y., Calderon-Damian, N., Julca-Celiz, N., Baldera-Chapoñan, V., Munoz-Salas, M. N., Chavez, S. G., & Lozano-Isla, F. (2026). Germination responses of black quinoa (Chenopodium quinoa Willd.) accessions under saline conditions. Frontiers in Agronomy, 8. https://doi.org/10.3389/fagro.2026.1860002
 
-### Potato WUE
+> https://docs.google.com/spreadsheets/d/1taQNaBUujMLd3hBDbod2XphWdCJqVW3x6BM1LrPpfq8/edit?gid=1236127691#gid=1236127691
+
+Topic: DoE
+Data: Phenotype
+
+---
+
+Lozano-Isla, F., Farfan-Vignolo, E. R., Gutierrez, R., Blas, R., & Awais, K. (2023). Harvest index is a key trait for screening drought-tolerant potato genotypes (Solanum tuberosum). Journal of Crop Science and Biotechnology, 27(1), 91–103. https://doi.org/10.1007/s12892-023-00215-2
 
 > https://docs.google.com/spreadsheets/d/15r7ZwcZZHbEgltlF6gSFvCTFA-CFzVBWwg3mFlRyKPs/edit?gid=1263018298#gid=1263018298
 
-### GerminaR
+Topic: DoE
+Data: Phenotype
+
+---
+
+Lozano‐Isla, F., Benites‐Alfaro, O. E., & Pompelli, M. F. (2019). GerminaR: An R package for germination analysis with the interactive web application “GerminaQuant for R.” Ecological Research, 34(2), 339–346. https://doi.org/10.1111/1440-1703.1275
 
 > https://docs.google.com/spreadsheets/d/1QziIXGOwb8cl3GaARJq6Ez6aU7vND_UHKJnFcAKx0VI/edit?gid=735494081#gid=735494081
 
-### Phaseolus vulgaris
+Topic: DoE
+Data: Phenotype
+
+---
+
+Kouam, E. B., Kamga-Fotso, A. M., & Anoumaa, M. (2023). Exploring agro-morphological profiles of Phaseolus vulgaris germplasm shows manifest diversity and opportunities for genetic improvement. Journal of Agriculture and Food Research, 14, 100772. https://doi.org/10.1016/j.jafr.2023.100772
 
 > https://docs.google.com/spreadsheets/d/105GXhQ8y7e3hPYzZfYXMPLD391HY_Zn1AXrat2agN1I/edit?gid=0#gid=0
 
-### Genetic diversity and population structure of a Peruvian cattle
+Topic: Diversity
+Data: Phenotype
 
-> https://doi.org/10.3389/fgene.2023.1073843
+---
 
-### Population structure and diversity of *Acrocomia species*
+Sala, T., Puglisi, D., Ferrari, L., Salamone, F., Tassone, M. R., Rotino, G. L., Fricano, A., & Losa, A. (2023). Genome-wide analysis of genetic diversity in a germplasm collection including wild relatives and interspecific clones of garden asparagus. Frontiers in Plant Science, 14, 1187663. https://doi.org/10.3389/fpls.2023.1187663
 
-> https://doi.org/10.1371/journal.pone.0241025
+> https://docs.google.com/spreadsheets/d/1vndj_EaHTAxHs2FQjs7PXQTNC65igP1m6thQMp11-3c/edit?gid=0#gid=0
 
+Topic: Diversity
+Data: Phenotype
+
+---
+
+Corredor, F., Figueroa, D., Estrada, R., Salazar, W., Quilcate, C., Vásquez, H. V., Gonzales, J., Maicelo, J. L., Medina, P., & Arbizu, C. I. (2023). Genetic diversity and population structure of a Peruvian cattle herd using SNP data. Frontiers in Genetics, 14, 1073843. https://doi.org/10.3389/fgene.2023.1073843
+
+Topic: Diversity
+Data: Genotype
+
+---
+
+Gheyas, A., Vallejo-Trujillo, A., Kebede, A., Dessie, T., Hanotte, O., & Smith, J. (2022). Whole genome sequences of 234 indigenous African chickens from Ethiopia. Scientific Data, 9(1), 53. https://doi.org/10.1038/s41597-022-01129-4
+
+Topic: Diversity
+Data: Phenotype & Genotype
