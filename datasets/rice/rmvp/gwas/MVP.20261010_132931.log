@@ -10,8 +10,8 @@
   Zhang, Xiaohui Yuan, Mengjin Zhu, Shuhong Zhao, Xinyun Li      
   Mailto: xiaoleiliu@mail.hzau.edu.cn, ylilin@mail.hzau.edu.cn   
 =================================================================
-Start: 2026-05-09 12:18:36 -05 
-The log has been output to the file: datasets/rice/rmvp/gwas/MVP.20260509_121836.log 
+Start: 2026-10-10 13:29:31 -05 
+The log has been output to the file: datasets/rice/rmvp/gwas/MVP.20261010_132931.log 
 Input data has 413 individuals and 36901 markers 
 Markers are detected to be stored by column 
 Analyzed trait: Panicle.length 
@@ -119,8 +119,8 @@ Multraits_QQ Plotting Panicle.length.GLM
 Multraits_QQ Plotting Panicle.length.MLM 
 Multraits_QQ Plotting Panicle.length.FarmCPU 
 Results are stored at Working Directory: datasets/rice/rmvp/gwas 
-End: 2026-05-09 12:19:10 -05 
-Total running time: 34s 
+End: 2026-10-10 13:30:11 -05 
+Total running time: 40s 
 ===================== MVP ACCOMPLISHED ===================== 
 SNP_Density Plotting 
 Multracks_Rectangular Plotting Panicle.length.GLM 

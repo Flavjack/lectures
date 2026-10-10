@@ -60,6 +60,8 @@ session_info()
 
 # Tranformar datos
 
+> RiceDiversity.44K.MSU6.Genotypes_PLINK.zip
+
 ```{bash}
 #| eval: false
 
@@ -72,20 +74,16 @@ plink2 --ped datasets/rice/sativas413.ped \
 # Import data
 
 ```{r}
-pheno <- read.xlsx("datasets/rice/sativas413.xlsx")
+info <- read_csv("http://www.ricediversity.org/data/sets/44kgwas/RiceDiversity.44K.germplasm.csv", skip = 1) %>% 
+  rename(id = "GSOR ID", spop = "Sub-population", country = "Country.of.origin")
+
+pheno <- read_delim("http://ricediversity.org/data/sets/44kgwas/RiceDiversity_44K_Phenotypes_34traits_PLINK.txt") %>% 
+  unite("Taxa", c("HybID", "NSFTVID"), sep = "_")
+
 geno <- snpR::read_vcf("datasets/rice/sativas413.vcf")
 
-info <- read.xlsx("datasets/rice/sativas413info.xlsx") %>% 
-  select(id = "GSOR.ID", spop = "Sub-population") %>% 
-  tibble()
-
-sample_meta <- geno %>% 
-  names() %>% 
-  gsub("_.*", "", .) %>% 
-  enframe(value = "pop") %>% 
-  bind_cols(., info)
-
-sample.meta(geno)$spop <- sample_meta$spop
+sample.meta(geno)$spop <- info$spop[1:413]
+sample.meta(geno)$country <- info$country[1:413]
 
 geno
 
@@ -110,16 +108,7 @@ pca$plots$pca
 ## Import data
 
 ```{r}
-sample_meta <- geno %>% 
-  names() %>% 
-  enframe(value = "Taxa") %>% 
-  mutate(HybID = gsub("_.*", "", Taxa)) %>% 
-  select(!name)
-  
-pheno <- read.xlsx("datasets/rice/sativas413.xlsx") %>% 
-  base::merge(., sample_meta) %>% 
-  select(Taxa, everything()) %>% 
-  select(!HybID) %>% 
+pheno %>%  
   write_csv("datasets/rice/sativas413.csv")
 
 MVP.Data(fileVCF = "datasets/rice/sativas413.vcf"
