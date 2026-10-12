@@ -83,5 +83,11 @@ pth <- "datasets/chickens_small.vcf.gz"
 snpdt <- snpR::read_vcf(file = pth)
 
 snpdt
+
+sample.meta(snpdt)
+snp.meta(snpdt)
 ```
+
+> https://www.nature.com/articles/s41597-022-01129-4/tables/5
+
 

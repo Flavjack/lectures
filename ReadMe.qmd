@@ -51,6 +51,20 @@ Data: Phenotype
 
 ---
 
+Mustapa, M., Ustari, D., Wicaksono, A., Algina, A., Ismail, A., Concibido, V., Suganda, T., & Karuniawan, A. (2024). Agromorphological traits dataset of butterfly pea accessions from Thailand, Indonesia, and Brazil. Data in Brief, 53, 110079. https://doi.org/10.1016/j.dib.2024.110079
+
+Topic: Diversity
+Data: Phenotype
+
+---
+
+Zeng, Z., Zhang, L., Guo, Y., Li, Y., Chen, Q., Song, H., Deng, J., Sun, X., Su, G., He, X., Kang, D., & Chen, Z. (2026). Genetic diversity analysis of angled luffa germplasm resources based on phenotypic traits and resequencing data. Frontiers in Plant Science, 17, 1774008. https://doi.org/10.3389/fpls.2026.1774008
+
+Topic: Diversity
+Data: Phenotype
+
+---
+
 Corredor, F., Figueroa, D., Estrada, R., Salazar, W., Quilcate, C., Vásquez, H. V., Gonzales, J., Maicelo, J. L., Medina, P., & Arbizu, C. I. (2023). Genetic diversity and population structure of a Peruvian cattle herd using SNP data. Frontiers in Genetics, 14, 1073843. https://doi.org/10.3389/fgene.2023.1073843
 
 Topic: Diversity
